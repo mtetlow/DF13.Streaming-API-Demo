@@ -1,0 +1,7 @@
+/*Create a push topic*/
+PushTopic pushTopic = new PushTopic();
+pushTopic.Name = 'AccountNameChages';
+pushTopic.Query = 'SELECT Account.Id,Account.Name FROM Account';
+pushTopic.ApiVersion = 28.0;
+
+insert pushTopic;
