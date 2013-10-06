@@ -6,7 +6,7 @@ if (typeof console === "undefined"){
 }
 
 $j = jQuery.noConflict();
-
+var pollingInterval = 5000;
 $j(document).ready(function(){
 
 	adjustBodyDivHeight();
@@ -18,6 +18,8 @@ $j(document).ready(function(){
 	attachBodyEventHandlers();
 
 	connectViaCometD();
+
+	setInterval(pollForAssetChanges,pollingInterval);
 });
 
 $j(window).resize(function(){
@@ -37,7 +39,6 @@ function processAssetInfo(){
 	var accounts = {};
 	var products = {};
 	$j.each(assetInfo,function(index,asset){
-		console.log(asset);
 		if(assetsByAccount[''] == null){assetsByAccount[''] = [];}
 		if(assetsByProduct[''] == null){assetsByProduct[''] = [];}
 		if(asset.Account != null){
@@ -240,10 +241,14 @@ function pollForAssetChanges(callback){
 				persistedAssets=result;
 			} else{
 				if(!objectsAreEqual(persistedAssets,result)){
+					persistedAssets=result;
 					assetInfo=result;
 					fullRefresh();
 				}
 			}
+		}
+		if(typeof(callback)=="function"){
+			callback();
 		}
 	})
 }
