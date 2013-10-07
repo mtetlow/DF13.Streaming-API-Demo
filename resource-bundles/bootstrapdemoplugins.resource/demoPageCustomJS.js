@@ -7,6 +7,7 @@ if (typeof console === "undefined"){
 
 $j = jQuery.noConflict();
 var pollingInterval = 5000;
+var poll = false;
 $j(document).ready(function(){
 
 	adjustBodyDivHeight();
@@ -18,8 +19,9 @@ $j(document).ready(function(){
 	attachBodyEventHandlers();
 
 	connectViaCometD();
-
-	setInterval(pollForAssetChanges,pollingInterval);
+	if(poll==true){
+		setInterval(pollForAssetChanges,pollingInterval);
+	}
 });
 
 $j(window).resize(function(){
