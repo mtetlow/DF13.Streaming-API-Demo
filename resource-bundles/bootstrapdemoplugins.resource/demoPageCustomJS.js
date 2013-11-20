@@ -7,7 +7,7 @@ if (typeof console === "undefined"){
 
 $j = jQuery.noConflict();
 var pollingInterval = 5000;
-var poll = false;
+var poll = true;
 $j(document).ready(function(){
 
 	adjustBodyDivHeight();
@@ -35,6 +35,8 @@ var uniqueAccounts=[];
 var uniqueProducts=[];
 var assetsByAccount={};
 var assetsByProduct={};
+var accountNameToIdMap={};
+
 function processAssetInfo(){
 	assetsByAccount={};
 	assetsByProduct={};
@@ -44,6 +46,7 @@ function processAssetInfo(){
 		if(assetsByAccount[''] == null){assetsByAccount[''] = [];}
 		if(assetsByProduct[''] == null){assetsByProduct[''] = [];}
 		if(asset.Account != null){
+			accountNameToIdMap[asset.Account.Name] = asset.AccountId;
 			accounts[asset.Account.Name]=asset.Account.Name;
 			if(assetsByAccount[asset.Account.Name] == null){assetsByAccount[asset.Account.Name] = [];}
 			assetsByAccount[asset.Account.Name].push(asset);
@@ -81,7 +84,7 @@ function refreshSidebar(){
 		});
 	} else{
 		$j.each(uniqueAccounts,function(index,accountName){
-			$j(ul).append('<li class=""><a href="#"><span class="badge pull-right">'+assetsByAccount[accountName].length+'</span><span class="item-name">'+accountName+'</span></a></li>');	
+			$j(ul).append('<li class=""><a href="#"><span class="badge pull-right">'+assetsByAccount[accountName].length+'</span><span class="account_name item-name" account_id="'+accountNameToIdMap[accountName]+'">'+accountName+'</span></a></li>');	
 		});
 	}
 	$j('#sidebar-data-container').empty();
@@ -227,7 +230,7 @@ function connectViaCometD(){
 function parseAccountNameChangeMessage(message){
 	if(message.data.event.type =='updated' && $j('.account_name[account_id='+message.data.sobject.Id+']').length>0){
 		var tdToUpdate=$j('.account_name[account_id='+message.data.sobject.Id+']');
-		var oldName = tdToUpdate.text();
+		var oldName = $j(tdToUpdate[0]).text();
 		var newName = message.data.sobject.Name;
 		tdToUpdate.text(newName);
 		$j('#update-alert-container').append('<div class="alert alert-warning alert-dismissable">'+oldName+' changed to '+newName+'</div>');
@@ -248,9 +251,6 @@ function pollForAssetChanges(callback){
 					fullRefresh();
 				}
 			}
-		}
-		if(typeof(callback)=="function"){
-			callback();
 		}
 	})
 }
